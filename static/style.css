@@ -1,0 +1,149 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+/* Universal Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #d4fc79, #96e6a1);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* Container Styling with Glassmorphism */
+.container {
+  max-width: 600px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: scale(1.015);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Title */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #222;
+}
+
+/* File Upload */
+input[type="file"] {
+  display: block;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px dashed #fff;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  width: 100%;
+  max-width: 100%;
+  color: #222;
+  font-weight: 500;
+}
+
+input[type="file"]:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.01);
+}
+
+/* Buttons (including Camera Btn) */
+button,
+.camera-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0.5rem;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease-in-out;
+}
+
+button:hover,
+.camera-btn:hover {
+  background: linear-gradient(135deg, #5f72bd, #9b23ea);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(155, 35, 234, 0.25);
+}
+
+/* Result Box */
+#result {
+  margin-top: 2.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1.2rem;
+  border-radius: 14px;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.05);
+  min-height: 150px;
+  text-align: left;
+  font-family: "Courier New", monospace;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #111;
+  transition: background 0.3s;
+}
+
+/* Video & Canvas */
+video,
+canvas {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.8rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  button,
+  .camera-btn {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    margin-top: 0.6rem;
+  }
+
+  input[type="file"] {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  #result {
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+}

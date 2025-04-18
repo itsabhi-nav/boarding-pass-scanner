@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📸 Boarding Pass Scanner</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #d4fc79, #96e6a1);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: #333;
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #222;
+      }
+
+      input[type="file"] {
+        display: block;
+        margin: 1.5rem auto;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px dashed #fff;
+        border-radius: 14px;
+        cursor: pointer;
+        width: 100%;
+        color: #222;
+      }
+
+      input[type="file"]:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0.9rem 2rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 0.5rem auto;
+        display: block;
+        width: 100%;
+        transition: 0.3s ease;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, #5f72bd, #9b23ea);
+        transform: translateY(-3px);
+      }
+
+      video,
+      canvas {
+        width: 100%;
+        border-radius: 12px;
+        margin: 1rem 0;
+        display: none;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+        text-align: left;
+      }
+
+      .info-card {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+      }
+
+      .info-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .info-card strong {
+        font-size: 0.85rem;
+        color: #666;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .info-card span {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #111;
+      }
+
+      .message {
+        margin-top: 1rem;
+        font-style: italic;
+        color: #555;
+      }
+
+      #resetBtn {
+        background: linear-gradient(135deg, #ff4e50, #f9d423);
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .container {
+          padding: 2rem;
+        }
+
+        button {
+          font-size: 1rem;
+          padding: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📸 Boarding Pass Scanner</h1>
+
+      <input type="file" id="imageInput" accept="image/*" />
+      <button id="startCamera">📷 Use Camera</button>
+      <button id="capture" style="display: none">📸 Capture</button>
+
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas"></canvas>
+
+      <lottie-player
+        src="https://assets5.lottiefiles.com/packages/lf20_tno6cg2w.json"
+        background="transparent"
+        speed="1"
+        style="width: 80px; height: 80px; margin: 1rem auto"
+        loop
+        autoplay
+      >
+      </lottie-player>
+
+      <button id="scanBtn">✨ Scan Now</button>
+      <button id="resetBtn">🔁 Scan Another</button>
+
+      <div id="result" class="message">Waiting for scan...</div>
+    </div>
+
+    <script>
+      let capturedFile = null,
+        stream;
+      const imageInput = document.getElementById("imageInput");
+      const startCamera = document.getElementById("startCamera");
+      const captureBtn = document.getElementById("capture");
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const scanBtn = document.getElementById("scanBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const result = document.getElementById("result");
+
+      startCamera.addEventListener("click", async () => {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" },
+          });
+          video.srcObject = stream;
+          video.style.display = "block";
+          captureBtn.style.display = "inline-block";
+        } catch (e) {
+          alert("Camera access denied.");
+        }
+      });
+
+      captureBtn.addEventListener("click", () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+        canvas.toBlob(
+          (b) =>
+            (capturedFile = new File([b], "photo.jpg", { type: "image/jpeg" }))
+        );
+        stream.getTracks().forEach((t) => t.stop());
+        video.style.display = captureBtn.style.display = "none";
+      });
+
+      scanBtn.addEventListener("click", async () => {
+        result.innerHTML = '<div class="message">⏳ Processing...</div>';
+        const file = capturedFile || imageInput.files[0];
+        if (!file) {
+          result.innerHTML =
+            '<div class="message">⚠️ Please select or capture an image first.</div>';
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+          const res = await fetch("/extract-boarding-pass", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+
+          if (data.data) {
+            const txt = data.data.replace(/```|json/g, "").trim();
+            let obj;
+            try {
+              obj = JSON.parse(txt);
+            } catch {
+              result.innerHTML = `<div class="message">Invalid JSON:<br>${txt}</div>`;
+              return;
+            }
+
+            result.innerHTML = '<div class="info-grid"></div>';
+            const grid = result.querySelector(".info-grid");
+            Object.entries(obj).forEach(([k, v]) => {
+              const card = document.createElement("div");
+              card.className = "info-card";
+              card.innerHTML = `<strong>${k
+                .replace(/_/g, " ")
+                .toUpperCase()}</strong><span>${v || "—"}</span>`;
+              grid.appendChild(card);
+            });
+
+            scanBtn.style.display = "none";
+            resetBtn.style.display = "block";
+          } else {
+            result.innerHTML = `<div class="message">❌ Error: ${
+              data.error || "Unknown"
+            }</div>`;
+          }
+        } catch (e) {
+          result.innerHTML = `<div class="message">🚫 Scan failed. Please try again.</div>`;
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        imageInput.value = "";
+        capturedFile = null;
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        result.innerHTML = '<div class="message">Waiting for scan...</div>';
+        scanBtn.style.display = "block";
+        resetBtn.style.display = "none";
+      });
+    </script>
+  </body>
+</html>
