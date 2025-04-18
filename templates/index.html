@@ -172,10 +172,9 @@
         style="width: 80px; height: 80px; margin: 1rem auto"
         loop
         autoplay
-      >
-      </lottie-player>
+      ></lottie-player>
 
-      <button id="scanBtn">✨ Scan Now</button>
+      <button id="scanBtn" disabled>✨ Scan Now</button>
       <button id="resetBtn">🔁 Scan Another</button>
 
       <div id="result" class="message">Waiting for scan...</div>
@@ -193,6 +192,15 @@
       const resetBtn = document.getElementById("resetBtn");
       const result = document.getElementById("result");
 
+      imageInput.addEventListener("change", () => {
+        capturedFile = null;
+        if (imageInput.files.length > 0) {
+          scanBtn.disabled = false;
+          result.innerHTML =
+            '<div class="message">✅ Image selected. Click "Scan Now".</div>';
+        }
+      });
+
       startCamera.addEventListener("click", async () => {
         try {
           stream = await navigator.mediaDevices.getUserMedia({
@@ -209,13 +217,24 @@
       captureBtn.addEventListener("click", () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        canvas.getContext("2d").drawImage(video, 0, 0);
-        canvas.toBlob(
-          (b) =>
-            (capturedFile = new File([b], "photo.jpg", { type: "image/jpeg" }))
-        );
-        stream.getTracks().forEach((t) => t.stop());
-        video.style.display = captureBtn.style.display = "none";
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            capturedFile = new File([blob], "captured.jpg", {
+              type: "image/jpeg",
+            });
+            video.style.display = "none";
+            captureBtn.style.display = "none";
+            stream.getTracks().forEach((t) => t.stop());
+            scanBtn.disabled = false;
+            result.innerHTML =
+              '<div class="message">✅ Image captured. Click "Scan Now".</div>';
+          } else {
+            result.innerHTML =
+              '<div class="message">❌ Failed to capture image.</div>';
+          }
+        }, "image/jpeg");
       });
 
       scanBtn.addEventListener("click", async () => {
@@ -276,6 +295,7 @@
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         result.innerHTML = '<div class="message">Waiting for scan...</div>';
         scanBtn.style.display = "block";
+        scanBtn.disabled = true;
         resetBtn.style.display = "none";
       });
     </script>

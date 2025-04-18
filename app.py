@@ -21,8 +21,7 @@ def extract_boarding_pass():
     image_bytes = request.files['image'].read()
 
     prompt = """
-Extract these fields from the boarding pass image and return exactly this JSON object,
-with no markdown or extra text:
+Extract these fields from the boarding pass image and return exactly this JSON object, with no markdown or extra text:
 
 {
   "airline_name": "",
